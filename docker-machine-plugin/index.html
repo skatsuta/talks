@@ -4,10 +4,10 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>reveal.js – The HTML Presentation Framework</title>
+		<title>Driver Plugins of Docker Machine</title>
 
-		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
-		<meta name="author" content="Hakim El Hattab">
+		<meta name="description" content="Driver Plugins of Docker Machine">
+		<meta name="author" content="Soshi Katsuta (@skatsuta)">
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,10 +15,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/theme/black-custom.css" id="theme">
 
 		<!-- Code syntax highlighting -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+    <!--<link rel="stylesheet" href="lib/css/zenburn.css">-->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/hybrid.min.css">
 
 		<!-- Printing and PDF exports -->
 		<script>
@@ -40,339 +41,955 @@
 
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
-				<section>
-					<h1>Reveal.js</h1>
-					<h3>The HTML Presentation Framework</h3>
-					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> / <a href="http://twitter.com/hakimel">@hakimel</a></small>
-					</p>
-				</section>
 
 				<section>
-					<h2>Hello There</h2>
+					<h1>Driver Plugins of Docker Machine</h1>
 					<p>
-						reveal.js enables you to create beautiful interactive slide decks using HTML. This presentation will show you examples of what it can do.
+						<a href="http://skatsuta.github.io">Soshi Katsuta</a><br>
+						<small><a href="http://github.com/skatsuta">@skatsuta</a></small>
 					</p>
-				</section>
-
-				<!-- Example of nested vertical slides -->
-				<section>
-					<section>
-						<h2>Vertical Slides</h2>
-						<p>Slides can be nested inside of each other.</p>
-						<p>Use the <em>Space</em> key to navigate through all slides.</p>
-						<br>
-						<a href="#" class="navigate-down">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-						</a>
-					</section>
-					<section>
-						<h2>Basement Level 1</h2>
-						<p>Nested slides are useful for adding additional detail underneath a high level horizontal slide.</p>
-					</section>
-					<section>
-						<h2>Basement Level 2</h2>
-						<p>That's it, time to go back up.</p>
-						<br>
-						<a href="#/2">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Up arrow" style="transform: rotate(180deg); -webkit-transform: rotate(180deg);">
-						</a>
-					</section>
-				</section>
-
-				<section>
-					<h2>Slides</h2>
-					<p>
-						Not a coder? Not a problem. There's a fully-featured visual editor for authoring these, try it out at <a href="http://slides.com" target="_blank">http://slides.com</a>.
-					</p>
-				</section>
-
-				<section>
-					<h2>Point of View</h2>
-					<p>
-						Press <strong>ESC</strong> to enter the slide overview.
-					</p>
-					<p>
-						Hold down alt and click on any element to zoom in on it using <a href="http://lab.hakim.se/zoom-js">zoom.js</a>. Alt + click anywhere to zoom back out.
-					</p>
-				</section>
-
-				<section>
-					<h2>Touch Optimized</h2>
-					<p>
-						Presentations look great on touch devices, like mobile phones and tablets. Simply swipe through your slides.
-					</p>
+					<p><small>Nov 16, 2015</small></p>
 				</section>
 
 				<section data-markdown>
-					<script type="text/template">
-						## Markdown support
-
-						Write content using inline or external Markdown.
-						Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
-
-						```
-						<section data-markdown>
-						  ## Markdown support
-
-						  Write content using inline or external Markdown.
-						  Instructions and more info available in the [readme](https://github.com/hakimel/reveal.js#markdown).
-						</section>
-						```
-					</script>
+# What's Docker Machine?
 				</section>
 
+				<section data-markdown>
+## Docker Machine?
+
+Docker ホストのプロビジョニングツール
+
+```sh
+# VirtualBox VM でローカル環境にホストをつくる
+$ docker-machine create --driver virtualbox demo
+
+# 環境変数を設定する
+$ eval "`docker-machine env demo`"
+
+# ホスト一覧を表示する
+$ docker-machine ls
+NAME   ACTIVE   DRIVER       STATE     URL                         SWARM
+demo   *        virtualbox   Running   tcp://192.168.99.100:2376
+```
+
+```sh
+# docker images で demo 内の image 一覧を表示する
+$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+
+# CentOS の image を取得する
+$ docker pull centos
+...
+Status: Downloaded newer image for centos:latest
+
+# 再び demo 内の image 一覧を表示する
+$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+centos              latest              e9fa5d3a0d0e        4 weeks ago         172.3 MB
+```
+				</section>
+
+				<section data-markdown>
+# Features
+				</section>
+
+				<section data-markdown>
+# Multiple Hosts
+				</section>
+
+				<section data-markdown>
+### 複数のホストを簡単に管理できる
+
+```sh
+# ホスト一覧を表示する
+$ docker-machine ls
+NAME      ACTIVE   DRIVER       STATE     URL                         SWARM
+default   -        virtualbox   Running   tcp://192.168.99.121:2376
+demo      *        virtualbox   Running   tcp://192.168.99.118:2376
+dev       -        virtualbox   Stopped
+
+# ホストを dev に切り替える
+$ eval "$(docker-machine env dev)"
+
+# default が active になった
+$ docker-machine ls
+NAME      ACTIVE   DRIVER       STATE     URL                         SWARM
+default   *        virtualbox   Running   tcp://192.168.99.121:2376
+demo      -        virtualbox   Running   tcp://192.168.99.118:2376
+dev       -        virtualbox   Stopped
+```
+
+```sh
+# default にある image は ubuntu
+$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+ubuntu              latest              e9ae3c220b23        4 days ago          187.9 MB
+```
+
+`eval "$(docker-machine env MACHINE_NAME)"` で簡単にホストが切り替えられる
+				</section>
+
+				<section data-markdown>
+# Cloud Hosts
+				</section>
+
+				<section data-markdown>
+### クラウドのホストも簡単に管理できる
+
+```sh
+# AWS EC2 にホストをつくる
+$ docker-machine create \
+	--driver amazonec2 \
+	--amazonec2-access-key $AWS_ACCESS_KEY_ID \
+	--amazonec2-secret-key $AWS_SECRET_ACCESS_KEY \
+	--amazonec2-vpc-id $AWS_VPC_ID \
+	--amazonec2-region ap-northeast-1 \
+	--amazonec2-zone c \
+	stg
+```
+
+```sh
+# EC2 インスタンスがホスト一覧に追加される
+$ docker-machine ls
+NAME   ACTIVE   DRIVER       STATE     URL                         SWARM
+demo   *        virtualbox   Running   tcp://192.168.99.100:2376
+dev    -        virtualbox   Running   tcp://192.168.99.102:2376
+stg    -        amazonec2    Running   tcp://52.68.147.113:2376
+```
+
+```sh
+# ssh サブコマンドでそのまま SSH ログインできる
+$ docker-machine ssh stg
+Welcome to Ubuntu 14.04.2 LTS (GNU/Linux 3.13.0-68-generic x86_64)
+...
+Last login: Sat Nov 14 18:24:12 2015 from ...
+ubuntu@stg:~$
+```
+
+```sh
+# 削除も簡単
+$ docker-machine rm stg
+$ docker-machine ls
+NAME   ACTIVE   DRIVER       STATE     URL                         SWARM
+demo   *        virtualbox   Running   tcp://192.168.99.100:2376
+dev    -        virtualbox   Running   tcp://192.168.99.102:2376
+```
+				</section>
+
+<!--
 				<section>
-					<section id="fragments">
-						<h2>Fragments</h2>
-						<p>Hit the next arrow...</p>
-						<p class="fragment">... to step through ...</p>
-						<p><span class="fragment">... a</span> <span class="fragment">fragmented</span> <span class="fragment">slide.</span></p>
+					Docker Swarm のクラスタも簡単に組める
+				</section>
+-->
 
-						<aside class="notes">
-							This slide has fragments which are also stepped through in the notes window.
-						</aside>
-					</section>
-					<section>
-						<h2>Fragment Styles</h2>
-						<p>There's different types of fragments, like:</p>
-						<p class="fragment grow">grow</p>
-						<p class="fragment shrink">shrink</p>
-						<p class="fragment fade-out">fade-out</p>
-						<p class="fragment current-visible">current-visible</p>
-						<p class="fragment highlight-red">highlight-red</p>
-						<p class="fragment highlight-blue">highlight-blue</p>
-					</section>
+				<section data-markdown>
+# Changelog in v0.5
 				</section>
 
-				<section id="transitions">
-					<h2>Transition Styles</h2>
-					<p>
-						You can select from different transitions, like: <br>
-						<a href="?transition=none#/transitions">None</a> -
-						<a href="?transition=fade#/transitions">Fade</a> -
-						<a href="?transition=slide#/transitions">Slide</a> -
-						<a href="?transition=convex#/transitions">Convex</a> -
-						<a href="?transition=concave#/transitions">Concave</a> -
-						<a href="?transition=zoom#/transitions">Zoom</a>
-					</p>
+				<section data-markdown>
+### Nov 3, 2015 に v0.5 がリリースされました
+
+![v0.5 contributers header](./img/contributors_header.png)
+![v0.5 contributers footer](./img/contributors_me.png)
+
+僕もちょっとだけ bug fix に参加してます
 				</section>
 
-				<section id="themes">
-					<h2>Themes</h2>
-					<p>
-						reveal.js comes with a few themes built in: <br>
-						<!-- Hacks to swap themes after the page has loaded. Not flexible and only intended for the reveal.js demo deck. -->
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/black.css'); return false;">Black (default)</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/white.css'); return false;">White</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/league.css'); return false;">League</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/sky.css'); return false;">Sky</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/beige.css'); return false;">Beige</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/simple.css'); return false;">Simple</a> <br>
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/serif.css'); return false;">Serif</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/blood.css'); return false;">Blood</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/night.css'); return false;">Night</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/moon.css'); return false;">Moon</a> -
-						<a href="#" onclick="document.getElementById('theme').setAttribute('href','css/theme/solarized.css'); return false;">Solarized</a>
-					</p>
+				<section data-markdown>
+### v0.5 の最大の変更点
+
+![v0.5 changelog](./img/changelog.png)
 				</section>
 
-				<section>
-					<section data-background="#dddddd">
-						<h2>Slide Backgrounds</h2>
-						<p>
-							Set <code>data-background="#dddddd"</code> on a slide to change the background color. All CSS color formats are supported.
-						</p>
-						<a href="#" class="navigate-down">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-						</a>
-					</section>
-					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/image-placeholder.png">
-						<h2>Image Backgrounds</h2>
-						<pre><code class="hljs">&lt;section data-background="image.png"&gt;</code></pre>
-					</section>
-					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/image-placeholder.png" data-background-repeat="repeat" data-background-size="100px">
-						<h2>Tiled Backgrounds</h2>
-						<pre><code class="hljs" style="word-wrap: break-word;">&lt;section data-background="image.png" data-background-repeat="repeat" data-background-size="100px"&gt;</code></pre>
-					</section>
-					<section data-background-video="https://s3.amazonaws.com/static.slid.es/site/homepage/v1/homepage-video-editor.mp4,https://s3.amazonaws.com/static.slid.es/site/homepage/v1/homepage-video-editor.webm" data-background-color="#000000">
-						<div style="background-color: rgba(0, 0, 0, 0.9); color: #fff; padding: 20px;">
-							<h2>Video Backgrounds</h2>
-							<pre><code class="hljs" style="word-wrap: break-word;">&lt;section data-background-video="video.mp4,video.webm"&gt;</code></pre>
-						</div>
-					</section>
-					<section data-background="http://i.giphy.com/90F8aUepslB84.gif">
-						<h2>... and GIFs!</h2>
-					</section>
+				<section data-markdown>
+# Driver Plugins
 				</section>
 
-				<section data-transition="slide" data-background="#4d7e65" data-background-transition="zoom">
-					<h2>Background Transitions</h2>
-					<p>
-						Different background transitions are available via the backgroundTransition option. This one's called "zoom".
-					</p>
-					<pre><code class="hljs">Reveal.configure({ backgroundTransition: 'zoom' })</code></pre>
+				<section data-markdown>
+## Driver Plugins
+
+\- Pluggable &amp; Modular -
+
+各ドライバがそれぞれ独立したバイナリになっている
+
+ホスト作成の具体的な処理はドライバ側がおこなう
+
+```sh
+# docker-machine 関連のバイナリ一覧
+$ ls /usr/local/bin | grep docker-machine
+docker-machine
+docker-machine-driver-amazonec2
+docker-machine-driver-azure
+docker-machine-driver-digitalocean
+docker-machine-driver-exoscale
+docker-machine-driver-generic
+docker-machine-driver-google
+docker-machine-driver-hyperv
+docker-machine-driver-none
+docker-machine-driver-openstack
+docker-machine-driver-rackspace
+docker-machine-driver-softlayer
+docker-machine-driver-virtualbox
+docker-machine-driver-vmwarefusion
+docker-machine-driver-vmwarevcloudair
+docker-machine-driver-vmwarevsphere
+```
+
+**どうやって別のバイナリに処理を委譲している？**
 				</section>
 
-				<section data-transition="slide" data-background="#b5533c" data-background-transition="zoom">
-					<h2>Background Transitions</h2>
-					<p>
-						You can override background transitions per-slide.
-					</p>
-					<pre><code class="hljs" style="word-wrap: break-word;">&lt;section data-background-transition="zoom"&gt;</code></pre>
+				<section data-markdown>
+### どうやって通信しているか
+
+![v0.5 changelog](./img/changelog_highlight.png)
+
+**Remote Procedure Call**
 				</section>
 
-				<section>
-					<h2>Pretty Code</h2>
-					<pre><code class="hljs" data-trim contenteditable>
-function linkify( selector ) {
-  if( supports3DTransforms ) {
+				<section data-markdown>
+## Driver Plugin の起動
 
-    var nodes = document.querySelectorAll( selector );
+```sh
+# 通常はポートを使用している "docker" の名前がつくプロセスはいない
+$ lsof -nP -iTCP -sTCP:LISTEN | grep docker
 
-    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
-      var node = nodes[i];
+$
+```
 
-      if( !node.className ) {
-        node.className += ' roll';
-      }
-    }
-  }
+
+```sh
+# docker-machine ls コマンドを実行すると、
+# 各ホストに対応するプラグインが RPC サーバとして立ち上がる
+$ docker-machine ls &amp;; sleep 0.5 &amp;&amp; lsof -nP -iTCP -sTCP:LISTEN | grep docker
+[1] 65804
+docker-ma 65806 skatsuta    3u  IPv4 0xc8646a3a5297e9ef      0t0  TCP 127.0.0.1:53372 (LISTEN)
+docker-ma 65807 skatsuta    3u  IPv4 0xc8646a3a573eb4af      0t0  TCP 127.0.0.1:53376 (LISTEN)
+docker-ma 65808 skatsuta    3u  IPv4 0xc8646a3a4ad3ff4f      0t0  TCP 127.0.0.1:53380 (LISTEN)
+
+NAME      ACTIVE   DRIVER       STATE     URL                         SWARM
+default   -        virtualbox   Stopped
+demo      *        virtualbox   Running   tcp://192.168.99.100:2376
+dev       -        virtualbox   Running   tcp://192.168.99.102:2376
+[1]  + 65804 done       docker-machine ls
+```
+
+3 つの `docker-machine-driver-virtualbox` プロセスが起動している
+				</section>
+
+				<section data-markdown>
+## Driver Plugin の起動 (cont.)
+
+Driver plugin を直接起動することはできない
+
+```sh
+$ docker-machine-driver-virtualbox
+This is a Docker Machine plugin binary.
+Plugin binaries are not intended to be invoked directly.
+Please use this plugin through the main 'docker-machine' binary.
+```
+
+実は以下のようにすると起動できるが、すぐ終了する
+
+```sh
+$ MACHINE_PLUGIN_TOKEN=42 docker-machine-driver-virtualbox
+127.0.0.1:59375
+# この間1秒以内
+$
+```
+
+### Why?
+				</section>
+
+				<section data-markdown>
+# Dive into Code in v0.5
+				</section>
+
+				<section data-markdown>
+# RPC Client
+
+(Main Process)
+				</section>
+
+				<section data-markdown>
+## RPC クライアント
+
+[libmachine/drivers/rpc/client_driver.go#L19-L23](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/rpc/client_driver.go#L19-L23)
+
+```go
+type RpcClientDriver struct {
+	plugin          localbinary.DriverPlugin
+	heartbeatDoneCh chan bool
+	Client          *InternalClient
 }
-					</code></pre>
-					<p>Code syntax highlighting courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
+```
+
+プラグインへの RPC リクエストを担当する
 				</section>
 
-				<section>
-					<h2>Marvelous List</h2>
-					<ul>
-						<li>No order here</li>
-						<li>Or here</li>
-						<li>Or here</li>
-						<li>Or here</li>
-					</ul>
+				<section data-markdown>
+### クライアント生成とプラグイン起動
+
+`docker-machine` のコマンドを実行すると、まず RPC クライアントの生成処理とプラグインの起動処理がおこなわれる
+
+[libmachine/drivers/rpc/client_driver.go#L49-L112](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/rpc/client_driver.go#L49-L112)
+
+```go
+func NewRpcClientDriver(rawDriverData []byte, driverName string) (*RpcClientDriver, error) {
+	mcnName := ""
+
+	// バイナリプラグイン管理オブジェクトを生成する
+	p, err := localbinary.NewLocalBinaryPlugin(driverName)
+	if err != nil {
+		return nil, err
+	}
+
+	// 非同期にドライバプラグイン (RPC サーバ) を起動する
+	go func() {
+		if err := p.Serve(); err != nil {
+			// TODO: Is this best approach?
+			log.Warn(err)
+			return
+		}
+	}()
+
+	// プラグインへの接続情報を取得する
+	addr, err := p.Address()
+	if err != nil {
+		return nil, fmt.Errorf("Error attempting to get plugin server address for RPC: %s", err)
+	}
+
+	// プラグインへ接続する
+	rpcclient, err := rpc.DialHTTP("tcp", addr)
+	if err != nil {
+		return nil, err
+	}
+
+	// RPC クライアントオブジェクトを生成する
+	c := &amp;RpcClientDriver{
+		Client:          NewInternalClient(rpcclient),
+		heartbeatDoneCh: make(chan bool),
+	}
+
+	// 定期的にプラグインへ heartbeat を送信する goroutine を生成する
+	go func(c *RpcClientDriver) {
+		for {
+			select {
+			case &lt;-c.heartbeatDoneCh:
+				return
+			default:
+				if err := c.Client.Call("RpcServerDriver.Heartbeat", struct{}{}, nil); err != nil {
+					log.Warnf("Error attempting heartbeat call to plugin server: %s", err)
+					c.Close()
+					return
+				}
+				time.Sleep(heartbeatInterval)
+			}
+		}
+	}(c)
+
+	// サーバのバージョンを確認する
+	var version int
+	if err := c.Client.Call("RpcServerDriver.GetVersion", struct{}{}, &version); err != nil {
+		return nil, err
+	}
+	log.Debug("Using API Version ", version)
+
+	// プラグイン情報をクライアントに設定する
+	if err := c.SetConfigRaw(rawDriverData); err != nil {
+		return nil, err
+	}
+
+	mcnName = c.GetMachineName()
+	p.MachineName = mcnName
+	c.Client.MachineName = mcnName
+	c.plugin = p
+
+	return c, nil
+}
+```
 				</section>
 
-				<section>
-					<h2>Fantastic Ordered List</h2>
-					<ol>
-						<li>One is smaller than...</li>
-						<li>Two is smaller than...</li>
-						<li>Three!</li>
-					</ol>
+				<section data-markdown>
+### プラグインの起動
+
+[libmachine/drivers/plugin/localbinary/plugin.go#L73-L77](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/plugin/localbinary/plugin.go#L73-L77)
+
+```go
+type LocalBinaryExecutor struct {
+	pluginStdout, pluginStderr io.ReadCloser
+	DriverName                 string
+	binaryPath                 string
+}
+```
+
+[libmachine/drivers/plugin/localbinary/plugin.go#L105-L132](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/plugin/localbinary/plugin.go#L105-L132)
+
+```go
+func (lbe *LocalBinaryExecutor) Start() (*bufio.Scanner, *bufio.Scanner, error) {
+	var err error
+
+	log.Debugf("Launching plugin server for driver %s", lbe.DriverName)
+
+	// プラグインのプロセスを起動するための exec.Cmd を生成する
+	cmd := exec.Command(lbe.binaryPath)
+
+	lbe.pluginStdout, err = cmd.StdoutPipe()
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error getting cmd stdout pipe: %s", err)
+	}
+
+	lbe.pluginStderr, err = cmd.StderrPipe()
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error getting cmd stderr pipe: %s", err)
+	}
+
+	outScanner := bufio.NewScanner(lbe.pluginStdout)
+	errScanner := bufio.NewScanner(lbe.pluginStderr)
+
+	// 環境変数 $MACHINE_PLUGIN_TOKEN に 42 を設定する
+	os.Setenv(PluginEnvKey, PluginEnvVal)
+
+	// プロセスを起動する
+	if err := cmd.Start(); err != nil {
+		return nil, nil, fmt.Errorf("Error starting plugin binary: %s", err)
+	}
+
+	return outScanner, errScanner, nil
+}
+
+const (
+	PluginEnvKey = "MACHINE_PLUGIN_TOKEN"
+	PluginEnvVal = "42"
+)
+```
+
 				</section>
 
-				<section>
-					<h2>Tabular Tables</h2>
-					<table>
-						<thead>
-							<tr>
-								<th>Item</th>
-								<th>Value</th>
-								<th>Quantity</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Apples</td>
-								<td>$1</td>
-								<td>7</td>
-							</tr>
-							<tr>
-								<td>Lemonade</td>
-								<td>$2</td>
-								<td>18</td>
-							</tr>
-							<tr>
-								<td>Bread</td>
-								<td>$3</td>
-								<td>2</td>
-							</tr>
-						</tbody>
-					</table>
+
+				<section data-markdown>
+### RPC リクエストの送信
+
+`RpcClientDriver` のメソッドの大部分は、単なる `RpcServerDriver` へのリモート呼び出し
+
+[libmachine/drivers/rpc/client_driver.go#L256-L278](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/rpc/client_driver.go#L256-L270)
+
+```go
+func (c *RpcClientDriver) Create() error {
+	return c.Client.Call("RpcServerDriver.Create", struct{}{}, nil)
+}
+
+func (c *RpcClientDriver) Remove() error {
+	return c.Client.Call("RpcServerDriver.Remove", struct{}{}, nil)
+}
+
+func (c *RpcClientDriver) Start() error {
+	return c.Client.Call("RpcServerDriver.Start", struct{}{}, nil)
+}
+
+func (c *RpcClientDriver) Stop() error {
+	return c.Client.Call("RpcServerDriver.Stop", struct{}{}, nil)
+}
+```
+
+[golang/go/src/net/rpc/client.go#L313-L317](https://github.com/golang/go/blob/release-branch.go1.5/src/net/rpc/client.go#L313-L317)
+
+```go
+// Call invokes the named function, waits for it to complete, and returns its error status.
+func (client *Client) Call(serviceMethod string, args interface{}, reply interface{}) error {
+	call := &lt;-client.Go(serviceMethod, args, reply, make(chan *Call, 1)).Done
+	return call.Error
+}
+```
 				</section>
 
-				<section>
-					<h2>Clever Quotes</h2>
-					<p>
-						These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;The nice thing about standards is that there are so many to choose from&rdquo;</q> and block:
-					</p>
-					<blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
-						reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
-					</blockquote>
+				<section data-markdown>
+# RPC Server
+(Plugin Process)
 				</section>
 
-				<section>
-					<h2>Intergalactic Interconnections</h2>
-					<p>
-						You can link between slides internally,
-						<a href="#/2/3">like this</a>.
-					</p>
+				<section data-markdown>
+### プラグインバイナリの起動処理
+
+[cmd/machine-driver-virtualbox.go#L8-L10](https://github.com/docker/machine/blob/v0.5.0/cmd/machine-driver-virtualbox.go#L8-L10)
+
+```go
+// docker-machine-driver-virtualbox の main 関数
+func main() {
+	plugin.RegisterDriver(virtualbox.NewDriver("", ""))
+}
+```
+
+[libmachine/drivers/plugin/register_driver.go#L17-L56](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/plugin/register_driver.go#L17-L56)
+
+```go
+var (
+	// heartbeat の猶予時間
+	heartbeatTimeout = 500 * time.Millisecond
+)
+
+func RegisterDriver(d drivers.Driver) {
+	// $MACHINE_PLUGIN_TOKEN != 42 の場合は終了する
+	if os.Getenv(localbinary.PluginEnvKey) != localbinary.PluginEnvVal {
+		fmt.Fprintln(os.Stderr, `This is a Docker Machine plugin binary.
+Plugin binaries are not intended to be invoked directly.
+Please use this plugin through the main 'docker-machine' binary.`)
+		os.Exit(1)
+	}
+
+	libmachine.SetDebug(true)
+
+	// RPC サーバオブジェクトを生成し、登録処理をおこなう
+	rpcd := rpcdriver.NewRpcServerDriver(d)
+	rpc.Register(rpcd)
+	rpc.HandleHTTP()
+
+	// ポート番号ランダムで TCP リスナを生成する
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading RPC server: %s\n", err)
+		os.Exit(1)
+	}
+	defer listener.Close()
+
+	fmt.Println(listener.Addr())
+
+	// リクエストを待ち受ける
+	go http.Serve(listener, nil)
+
+	for {
+		select {
+		case &lt;-rpcd.CloseCh:
+			os.Exit(0)
+		// heartbeat が送られてきてる間はプロセス継続
+		case &lt;-rpcd.HeartbeatCh:
+			continue
+		// 500ms 以内の間隔で heartbeat が送られてこなければ終了する
+		case &lt;-time.After(heartbeatTimeout):
+			os.Exit(1)
+		}
+	}
+}
+```
 				</section>
 
-				<section>
-					<h2>Speaker View</h2>
-					<p>There's a <a href="https://github.com/hakimel/reveal.js#speaker-notes">speaker view</a>. It includes a timer, preview of the upcoming slide as well as your speaker notes.</p>
-					<p>Press the <em>S</em> key to try it out.</p>
+				<section data-markdown>
+## RPC サーバ
 
-					<aside class="notes">
-						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-					</aside>
+[libmachine/drivers/rpc/server_driver.go](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/rpc/server_driver.go)
+
+```go
+type RpcServerDriver struct {
+	ActualDriver drivers.Driver // 実際の処理をおこなう Driver インターフェース
+	CloseCh      chan bool
+	HeartbeatCh  chan bool
+}
+```
+
+```go
+func (r *RpcServerDriver) Create(_, _ *struct{}) error {
+	return r.ActualDriver.Create()
+}
+
+func (r *RpcServerDriver) Remove(_ *struct{}, _ *struct{}) error {
+	return r.ActualDriver.Remove()
+}
+
+func (r *RpcServerDriver) Start(_ *struct{}, _ *struct{}) error {
+	return r.ActualDriver.Start()
+}
+
+func (r *RpcServerDriver) Stop(_ *struct{}, _ *struct{}) error {
+	return r.ActualDriver.Stop()
+}
+```
+
+RPC リクエストを `ActualDriver` に委譲する
 				</section>
 
-				<section>
-					<h2>Export to PDF</h2>
-					<p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, here's an example:</p>
-					<iframe src="https://www.slideshare.net/slideshow/embed_code/42840540" width="445" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
+				<section data-markdown>
+## `Driver` interface
+
+ホストへの操作を実際におこなうオブジェクトが実装すべきインターフェース
+
+[libmachine/drivers/drivers.go#L11-L73](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/drivers.go#L11-L73)
+
+```go
+// Driver defines how a host is created and controlled. Different types of
+// driver represent different ways hosts can be created (e.g. different
+// hypervisors, different cloud providers)
+type Driver interface {
+	// Create a host using the driver's config
+	Create() error
+
+	// DriverName returns the name of the driver as it is registered
+	DriverName() string
+
+	// GetCreateFlags returns the mcnflag.Flag slice representing the flags
+	// that can be set, their descriptions and defaults.
+	GetCreateFlags() []mcnflag.Flag
+
+	// GetIP returns an IP or hostname that this host is available at
+	// e.g. 1.2.3.4 or docker-host-d60b70a14d3a.cloudapp.net
+	GetIP() (string, error)
+
+	// GetMachineName returns the name of the machine
+	GetMachineName() string
+
+	// GetSSHHostname returns hostname for use with ssh
+	GetSSHHostname() (string, error)
+
+	// GetSSHKeyPath returns key path for use with ssh
+	GetSSHKeyPath() string
+
+	// GetSSHPort returns port for use with ssh
+	GetSSHPort() (int, error)
+
+	// GetSSHUsername returns username for use with ssh
+	GetSSHUsername() string
+
+	// GetURL returns a Docker compatible host URL for connecting to this host
+	// e.g. tcp://1.2.3.4:2376
+	GetURL() (string, error)
+
+	// GetState returns the state that the host is in (running, stopped, etc)
+	GetState() (state.State, error)
+
+	// Kill stops a host forcefully
+	Kill() error
+
+	// PreCreateCheck allows for pre-create operations to make sure a driver is ready for creation
+	PreCreateCheck() error
+
+	// Remove a host
+	Remove() error
+
+	// Restart a host. This may just call Stop(); Start() if the provider does not
+	// have any special restart behaviour.
+	Restart() error
+
+	// SetConfigFromFlags configures the driver with the object that was returned
+	// by RegisterCreateFlags
+	SetConfigFromFlags(opts DriverOptions) error
+
+	// Start a host
+	Start() error
+
+	// Stop a host gracefully
+	Stop() error
+}
+```
 				</section>
 
-				<section>
-					<h2>Global State</h2>
-					<p>
-						Set <code>data-state="something"</code> on a slide and <code>"something"</code>
-						will be added as a class to the document element when the slide is open. This lets you
-						apply broader style changes, like switching the page background.
-					</p>
+				<section data-markdown>
+### VirtualBox 用の `Driver` の実装
+
+[drivers/virtualbox/virtualbox.go#L49-L61](https://github.com/docker/machine/blob/v0.5.0/drivers/virtualbox/virtualbox.go#L49-L61)
+
+```go
+type Driver struct {
+	VBoxManager                // vbm(), vbmOut(), vbmOutErr() をもつインターフェース
+	*drivers.BaseDriver
+	CPU                 int    // デフォルト 1
+	Memory              int    // デフォルト 1024 MB
+	DiskSize            int    // デフォルト 20000 MB
+	Boot2DockerURL      string
+	Boot2DockerImportVM string
+	HostOnlyCIDR        string
+	HostOnlyNicType     string
+	HostOnlyPromiscMode string
+	NoShare             bool
+}
+```
+
+`VBoxManager` ([drivers/virtualbox/vbm.go#L51-L80](https://github.com/docker/machine/blob/v0.5.0/drivers/virtualbox/vbm.go#L51-L80))
+
+```go
+func (v *VBoxCmdManager) vbmOutErr(args ...string) (string, string, error) {
+	// `VBoxManage args...` コマンドを実行する
+	cmd := exec.Command(vboxManageCmd, args...)
+	log.Debugf("COMMAND: %v %v", vboxManageCmd, strings.Join(args, " "))
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &amp;stdout
+	cmd.Stderr = &amp;stderr
+	err := cmd.Run()
+	...
+}
+```
 				</section>
 
-				<section data-state="customevent">
-					<h2>State Events</h2>
-					<p>
-						Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
-					</p>
-					<pre><code class="javascript" data-trim contenteditable style="font-size: 18px;">
-Reveal.addEventListener( 'customevent', function() {
-	console.log( '"customevent" has fired' );
-} );
-					</code></pre>
+				<section data-markdown>
+### `Driver.Create()` の実装
+
+[drivers/virtualbox/virtualbox.go#L229-L417](https://github.com/docker/machine/blob/v0.5.0/drivers/virtualbox/virtualbox.go#L229-L417)
+
+```go
+func (d *Driver) Create() error {
+	// Boot2Docker の ISO を読み込む
+	b2dutils := mcnutils.NewB2dUtils(d.StorePath)
+	if err := b2dutils.CopyIsoToMachineDir(d.Boot2DockerURL, d.MachineName); err != nil {
+		return err
+	}
+
+	// CPU レベルでの仮想化機能が有効化チェックする
+	if d.IsVTXDisabled() {
+		// Let's log a warning to warn the user. When the vm is started, logs
+		// will be checked for an error anyway.
+		// We could fail right here but the method to check didn't prove being
+		// bulletproof.
+		log.Warn("This computer doesn't have VT-X/AMD-v enabled. Enabling it in the BIOS is mandatory.")
+	}
+
+	log.Infof("Creating VirtualBox VM...")
+
+	// import b2d VM if requested
+	if d.Boot2DockerImportVM != "" {
+		name := d.Boot2DockerImportVM
+
+		// make sure vm is stopped
+		_ = d.vbm("controlvm", name, "poweroff")
+
+		diskInfo, err := d.getVMDiskInfo()
+		if err != nil {
+			return err
+		}
+
+		if _, err := os.Stat(diskInfo.Path); err != nil {
+			return err
+		}
+
+		if err := d.vbm("clonehd", diskInfo.Path, d.diskPath()); err != nil {
+			return err
+		}
+
+		log.Debugf("Importing VM settings...")
+		vmInfo, err := d.getVMInfo()
+		if err != nil {
+			return err
+		}
+
+		d.CPU = vmInfo.CPUs
+		d.Memory = vmInfo.Memory
+
+		log.Debugf("Importing SSH key...")
+		keyPath := filepath.Join(mcnutils.GetHomeDir(), ".ssh", "id_boot2docker")
+		if err := mcnutils.CopyFile(keyPath, d.GetSSHKeyPath()); err != nil {
+			return err
+		}
+	} else {
+		log.Infof("Creating SSH key...")
+		if err := ssh.GenerateSSHKey(d.GetSSHKeyPath()); err != nil {
+			return err
+		}
+
+		log.Debugf("Creating disk image...")
+		if err := d.generateDiskImage(d.DiskSize); err != nil {
+			return err
+		}
+	}
+
+	// `VBoxManage createvm` コマンドで VM を作成する
+	if err := d.vbm("createvm",
+		"--basefolder", d.ResolveStorePath("."),
+		"--name", d.MachineName,
+		"--register"); err != nil {
+		return err
+	}
+
+	log.Debugf("VM CPUS: %d", d.CPU)
+	log.Debugf("VM Memory: %d", d.Memory)
+
+	cpus := d.CPU
+	if cpus &lt; 1 {
+		cpus = int(runtime.NumCPU())
+	}
+	if cpus &gt; 32 {
+		cpus = 32
+	}
+
+	// `VBoxManage modifyvm` コマンドで VM に各種設定を反映させる
+	if err := d.vbm("modifyvm", d.MachineName,
+		"--firmware", "bios",
+		"--bioslogofadein", "off",
+		"--bioslogofadeout", "off",
+		"--bioslogodisplaytime", "0",
+		"--biosbootmenu", "disabled",
+		"--ostype", "Linux26_64",
+		"--cpus", fmt.Sprintf("%d", cpus),
+		"--memory", fmt.Sprintf("%d", d.Memory),
+		"--acpi", "on",
+		"--ioapic", "on",
+		"--rtcuseutc", "on",
+		"--natdnshostresolver1", "off",
+		"--natdnsproxy1", "off",
+		"--cpuhotplug", "off",
+		"--pae", "on",
+		"--hpet", "on",
+		"--hwvirtex", "on",
+		"--nestedpaging", "on",
+		"--largepages", "on",
+		"--vtxvpid", "on",
+		"--accelerate3d", "off",
+		"--boot1", "dvd"); err != nil {
+		return err
+	}
+
+	if err := d.vbm("modifyvm", d.MachineName,
+		"--nic1", "nat",
+		"--nictype1", "82540EM",
+		"--cableconnected1", "on"); err != nil {
+		return err
+	}
+
+	if err := d.setupHostOnlyNetwork(d.MachineName); err != nil {
+		return err
+	}
+
+	// `VBoxManage storagectl` コマンドでストレージコントローラを付加する
+	if err := d.vbm("storagectl", d.MachineName,
+		"--name", "SATA",
+		"--add", "sata",
+		"--hostiocache", "on"); err != nil {
+		return err
+	}
+
+	// `VBoxManage storageattach` コマンドでストレージを VM にアタッチする
+	if err := d.vbm("storageattach", d.MachineName,
+		"--storagectl", "SATA",
+		"--port", "0",
+		"--device", "0",
+		"--type", "dvddrive",
+		"--medium", d.ResolveStorePath("boot2docker.iso")); err != nil {
+		return err
+	}
+
+	if err := d.vbm("storageattach", d.MachineName,
+		"--storagectl", "SATA",
+		"--port", "1",
+		"--device", "0",
+		"--type", "hdd",
+		"--medium", d.diskPath()); err != nil {
+		return err
+	}
+
+	// let VBoxService do nice magic automounting (when it's used)
+	if err := d.vbm("guestproperty", "set", d.MachineName, "/VirtualBox/GuestAdd/SharedFolders/MountPrefix", "/"); err != nil {
+		return err
+	}
+	if err := d.vbm("guestproperty", "set", d.MachineName, "/VirtualBox/GuestAdd/SharedFolders/MountDir", "/"); err != nil {
+		return err
+	}
+
+	// 共有ディレクトリ名を設定する
+	var shareName, shareDir string // TODO configurable at some point
+	switch runtime.GOOS {
+	case "windows":
+		shareName = "c/Users"
+		shareDir = "c:\\Users"
+	case "darwin":
+		shareName = "Users"
+		shareDir = "/Users"
+		// TODO "linux"
+	}
+
+	// 共有ディレクトリをマウントする
+	if shareDir != "" &amp;&amp; !d.NoShare {
+		log.Debugf("setting up shareDir")
+		if _, err := os.Stat(shareDir); err != nil &amp;&amp; !os.IsNotExist(err) {
+			return err
+		} else if !os.IsNotExist(err) {
+			if shareName == "" {
+				// parts of the VBox internal code are buggy with share names that start with "/"
+				shareName = strings.TrimLeft(shareDir, "/")
+				// TODO do some basic Windows -&gt; MSYS path conversion
+				// ie, s!^([a-z]+):[/\\]+!\1/!; s!\\!/!g
+			}
+
+			// woo, shareDir exists!  let's carry on!
+			if err := d.vbm("sharedfolder", "add", d.MachineName, "--name", shareName, "--hostpath", shareDir, "--automount"); err != nil {
+				return err
+			}
+
+			// enable symlinks
+			if err := d.vbm("setextradata", d.MachineName, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/"+shareName, "1"); err != nil {
+				return err
+			}
+		}
+	}
+
+	log.Infof("Starting VirtualBox VM...")
+
+	return d.Start()
+}
+```
+
+とにかく頑張って泥臭いことをやってます
 				</section>
 
-				<section>
-					<h2>Take a Moment</h2>
-					<p>
-						Press B or . on your keyboard to pause the presentation. This is helpful when you're on stage and want to take distracting slides off the screen.
-					</p>
+				<section data-markdown>
+### Amazon EC2 用の `Driver` の実装
+
+[drivers/amazonec2/amazonec2.go#L23-L69](https://github.com/docker/machine/blob/v0.5.0/drivers/amazonec2/amazonec2.go#L23-L69)
+
+```go
+type Driver struct {
+	*drivers.BaseDriver
+	Id                  string
+	AccessKey           string
+	SecretKey           string
+	SessionToken        string
+	Region              string // default: us-east-1
+	AMI                 string // default: ami-615cb725 (Ubuntu 14.04)
+	SSHKeyID            int
+	KeyName             string
+	InstanceId          string
+	InstanceType        string // default: t2.micro
+	PrivateIPAddress    string
+	SecurityGroupId     string
+	SecurityGroupName   string
+	ReservationId       string
+	RootSize            int64
+	IamInstanceProfile  string
+	VpcId               string
+	SubnetId            string
+	Zone                string // default: a
+	keyPath             string
+	RequestSpotInstance bool
+	SpotPrice           string
+	PrivateIPOnly       bool
+	UsePrivateIP        bool
+	Monitoring          bool
+}
+```
+
 				</section>
 
-				<section>
-					<h2>Much more</h2>
-					<ul>
-						<li>Right-to-left support</li>
-						<li><a href="https://github.com/hakimel/reveal.js#api">Extensive JavaScript API</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js#auto-sliding">Auto-progression</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js#parallax-background">Parallax backgrounds</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js#keyboard-bindings">Custom keyboard bindings</a></li>
-					</ul>
+				<section data-markdown>
+# Summary
 				</section>
 
-				<section style="text-align: left;">
-					<h1>THE END</h1>
-					<p>
-						- <a href="http://slides.com">Try the online editor</a> <br>
-						- <a href="https://github.com/hakimel/reveal.js">Source code &amp; documentation</a>
-					</p>
+				<section data-markdown>
+## Docker Machine
+
+Docker ホストのプロビジョニングツール
+
+マルチホスト・クラウドホストを一括管理
+
+## Driver Plugins
+
+各プラグインは独立したバイナリ
+
+プラグインとの通信は RPC
+
+プラグイン側の実際の処理は `Driver` がおこなう
+
+`Driver` はホスト操作のための API を発行する
+
+				</section>
+
+				<section data-markdown>
+# Thank you!
 				</section>
 
 			</div>
@@ -392,7 +1009,7 @@ Reveal.addEventListener( 'customevent', function() {
 				history: true,
 				center: true,
 
-				transition: 'slide', // none/fade/slide/convex/concave/zoom
+				transition: 'convex', // none/fade/slide/convex/concave/zoom
 
 				// Optional reveal.js plugins
 				dependencies: [
