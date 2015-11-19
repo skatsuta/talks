@@ -231,7 +231,7 @@ dev    -        virtualbox   Running   tcp://192.168.99.102:2376
 					<script type="text/template">
 ## Driver Plugins
 
-\- Pluggable &amp; Modular -
+\- Pluggable & Modular -
 
 各ドライバがそれぞれ独立したバイナリになっている
 
@@ -287,7 +287,7 @@ $
 ```sh
 # docker-machine ls コマンドを実行すると、
 # 各ホストに対応するプラグインが RPC サーバとして立ち上がる
-$ docker-machine ls &amp;; sleep 0.5 &amp;&amp; lsof -nP -iTCP -sTCP:LISTEN | grep docker
+$ docker-machine ls &; sleep 0.5 && lsof -nP -iTCP -sTCP:LISTEN | grep docker
 [1] 65804
 docker-ma 65806 skatsuta    3u  IPv4 0xc8646a3a5297e9ef      0t0  TCP 127.0.0.1:53372 (LISTEN)
 docker-ma 65807 skatsuta    3u  IPv4 0xc8646a3a573eb4af      0t0  TCP 127.0.0.1:53376 (LISTEN)
@@ -402,7 +402,7 @@ func NewRpcClientDriver(rawDriverData []byte, driverName string) (*RpcClientDriv
 	}
 
 	// RPC クライアントオブジェクトを生成する
-	c := &amp;RpcClientDriver{
+	c := &RpcClientDriver{
 		Client:          NewInternalClient(rpcclient),
 		heartbeatDoneCh: make(chan bool),
 	}
@@ -426,7 +426,7 @@ func NewRpcClientDriver(rawDriverData []byte, driverName string) (*RpcClientDriv
 
 	// サーバのバージョンを確認する
 	var version int
-	if err := c.Client.Call("RpcServerDriver.GetVersion", struct{}{}, &amp;version); err != nil {
+	if err := c.Client.Call("RpcServerDriver.GetVersion", struct{}{}, &version); err != nil {
 		return nil, err
 	}
 	log.Debug("Using API Version ", version)
@@ -451,7 +451,9 @@ func NewRpcClientDriver(rawDriverData []byte, driverName string) (*RpcClientDriv
 					<script type="text/template">
 ### プラグインの起動
 
-[libmachine/drivers/plugin/localbinary/plugin.go#L73-L77](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/plugin/localbinary/plugin.go#L73-L77)
+<small>
+	[libmachine/drivers/plugin/localbinary/plugin.go#L73-L77](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/plugin/localbinary/plugin.go#L73-L77)
+</small>
 
 ```go
 type LocalBinaryExecutor struct {
@@ -461,7 +463,9 @@ type LocalBinaryExecutor struct {
 }
 ```
 
-[libmachine/drivers/plugin/localbinary/plugin.go#L105-L132](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/plugin/localbinary/plugin.go#L105-L132)
+<small>
+	[libmachine/drivers/plugin/localbinary/plugin.go#L105-L132](https://github.com/docker/machine/blob/v0.5.0/libmachine/drivers/plugin/localbinary/plugin.go#L105-L132)
+</small>
 
 ```go
 func (lbe *LocalBinaryExecutor) Start() (*bufio.Scanner, *bufio.Scanner, error) {
@@ -532,15 +536,6 @@ func (c *RpcClientDriver) Stop() error {
 }
 ```
 
-[golang/go/src/net/rpc/client.go#L313-L317](https://github.com/golang/go/blob/release-branch.go1.5/src/net/rpc/client.go#L313-L317)
-
-```go
-// Call invokes the named function, waits for it to complete, and returns its error status.
-func (client *Client) Call(serviceMethod string, args interface{}, reply interface{}) error {
-	call := &lt;-client.Go(serviceMethod, args, reply, make(chan *Call, 1)).Done
-	return call.Error
-}
-```
 					</script>
 				</section>
 
@@ -743,12 +738,10 @@ type Driver struct {
 	CPU                 int    // デフォルト 1
 	Memory              int    // デフォルト 1024 MB
 	DiskSize            int    // デフォルト 20000 MB
-	Boot2DockerURL      string
-	Boot2DockerImportVM string
-	HostOnlyCIDR        string
-	HostOnlyNicType     string
-	HostOnlyPromiscMode string
-	NoShare             bool
+	Boot2DockerURL      string // Boot2Docker のダウンロード URL
+	Boot2DockerImportVM string // Boot2Docker の ISO のパス
+	...
+	NoShare             bool   // 共有ディレクトリをつくるかどうか
 }
 ```
 
@@ -761,8 +754,8 @@ func (v *VBoxCmdManager) vbmOutErr(args ...string) (string, string, error) {
 	log.Debugf("COMMAND: %v %v", vboxManageCmd, strings.Join(args, " "))
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	cmd.Stdout = &amp;stdout
-	cmd.Stderr = &amp;stderr
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 	err := cmd.Run()
 	...
 }
@@ -946,9 +939,9 @@ func (d *Driver) Create() error {
 	}
 
 	// 共有ディレクトリをマウントする
-	if shareDir != "" &amp;&amp; !d.NoShare {
+	if shareDir != "" && !d.NoShare {
 		log.Debugf("setting up shareDir")
-		if _, err := os.Stat(shareDir); err != nil &amp;&amp; !os.IsNotExist(err) {
+		if _, err := os.Stat(shareDir); err != nil && !os.IsNotExist(err) {
 			return err
 		} else if !os.IsNotExist(err) {
 			if shareName == "" {
