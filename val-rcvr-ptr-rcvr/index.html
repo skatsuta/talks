@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Value Receiver and Pointer Receiver</title>
+
+		<meta name="description" content="Value Receiver and Pointer Receiver">
+		<meta name="author" content="Soshi Katsuta (@skatsuta)">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black-custom.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<!--<link rel="stylesheet" href="lib/css/zenburn.css">-->
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/hybrid.min.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+          <h1>Value Receiver<br>and<br>Pointer Receiver</h1>
+					<p>
+						<a href="http://skatsuta.github.io">Soshi Katsuta</a><br>
+						<small><a href="http://github.com/skatsuta">@skatsuta</a></small>
+					</p>
+					<p><small>Dec 7, 2015</small></p>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+# What's "Receiver"?
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## "Receiver"?
+
+```go
+	p := Person{Name: "Taro"}
+	p.Greet("Hi")
+	↑
+  コイツ
+```
+
+## Why "Receiver"?
+「この処理やってよ」というメッセージ（メソッド呼び出し）を「受け取る」側だから。
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+# "Value" Receiver?
+# "Pointer" Receiver?
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## Value Receiver
+
+「値型」に対してメソッドを定義する
+
+```go
+type Person struct {
+	Name string
+}
+
+// Person 型に対してメソッドを定義する
+func (p Person) Greet(msg string) {
+	fmt.Printf("%s, I'm %s.", msg, p.Name)
+}
+
+func main() {
+	p := Person{Name: "Taro"} // 値型の変数を用意する
+	p.Greet("Hi") //=> Hi, I'm Taro.
+}
+```
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## Pointer Receiver
+
+「ポインタ型」に対してメソッドを定義する
+
+```go
+type Person struct {
+	Name string
+}
+
+// *Person 型に対してメソッドを定義する
+func (p *Person) Yell(msg string) {
+	fmt.Printf("%s!!!", msg)
+}
+
+func main() {
+	p := &Person{Name: "Taro"} // ポインタ型の変数を用意する
+	p.Yell("OH MY GOD") //=> OH MY GOD!!!
+}
+```
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## でも、あんまりその辺意識して書いてないけど...
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+# コンパイラによる Receiver の自動変換
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## Value Receiver の場合
+
+ポインタ型変数に対してはコンパイラが値型のメソッド呼び出しに変換する
+
+```go
+type Person struct {
+	Name string
+}
+
+// Person 型に対してメソッドを定義する
+func (p Person) Greet(msg string) {
+	fmt.Printf("%s, I'm %s.", msg, p.Name)
+}
+
+func main() {
+	pp := &Person{Name: "Taro"} // ポインタ型の変数を用意して...
+	(*pp).Greet("Hi") //=> Hi, I'm Taro. | 当然の呼び出せる
+	pp.Greet("Hi")    //=> Hi, I'm Taro. | コンパイラが上のコードに変換する
+
+	var nilp *Person // nil ポインタを用意すると...
+	nilp.Greet("Hi") //=> panic: runtime error: invalid memory address or nil pointer dereference
+}
+```
+
+<small>
+	※ ` Greet()` の中で `p.Name` を使っていなくても panic になります
+</small>
+
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## Pointer Receiver の場合 (1/2)
+
+値型変数に対してはコンパイラがポインタ型のメソッド呼び出しに変換する
+
+```go
+type Person struct {
+	Name string
+}
+
+// *Person 型に対してメソッドを定義する
+func (p *Person) Yell(msg string) {
+	fmt.Printf("%s!!!", msg)
+}
+
+func main() {
+	p := Person{Name: "Taro"} // 値型の変数を用意する
+	(&p).Greet("OH MY GOD") //=> OH MY GOD!!! | 当然呼び出せる
+	p.Greet("OH MY GOD")    //=> OH MY GOD!!! | コンパイラが上のコードに変換する
+}
+```
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## Pointer Receiver の場合 (2/2)
+
+Pointer receiver のメソッドは `nil` でも呼び出しが可能
+
+```go
+type Person struct {
+	Name string
+}
+
+// *Person 型に対してメソッドを定義する
+func (p *Person) Yell(msg string) {
+	fmt.Printf("%s!!!", msg)
+}
+
+func main() {
+	var nilp *Person // nil ポインタを用意すると...
+	nilp.Yell("OH MY GOD")  //=> OH MY GOD!!! | ちゃんと呼び出せる
+}
+```
+
+ただしメソッド内で field 呼び出ししていたらアウト
+
+```go
+func (p *Person) YellAtMe(msg string) {
+	fmt.Printf("I'm %s, %s!!!", msg, p.Name) // p.Name フィールドを呼び出していると...
+}
+
+func main() {
+	var nilp *Person // nil ポインタを用意すると...
+	nilp.YellAtMe("so stupid")  //=> panic: runtime error: invalid memory address or nil pointer dereference
+}
+```
+
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 理屈はわかったけど、何かごちゃごちゃしてるような...?
+### 結局 Value Receiver と Pointer Receiver ってどう使い分ければいいの...?
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## << シンプルな事実 >>
+
+# メソッド呼び出しとは「構造体関数」呼び出しの糖衣構文である！
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## このコード、意味わかりますか？
+
+```go
+var buf bytes.Buffer
+(*bytes.Buffer).WriteString(&buf, "hello")
+```
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+# メソッド定義の真実
+
+```go
+func (p Person) Greet(msg string) {
+	//...
+}
+```
+
+というメソッド定義は、内部的には
+
+```go
+func Person.Greet(p Person, msg string) {
+	//...
+}
+```
+という「構造体関数」として定義される！
+
+<small>
+	Pointer receiver なら `(*Person).Yell(p *Person, msg string)` になる
+</small>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## それ本当？
+
+[src/cmd/compile/internal/gc/dcl.go#L1291-L1316](https://github.com/golang/go/blob/master/src/cmd/compile/internal/gc/dcl.go#L1291-L1316)
+
+```go
+// n: メソッドを表すノード
+// t: メソッドをもつ型を表すノード
+func methodname1(n *Node, t *Node) *Node {
+	star := ""
+	if t.Op == OIND {
+		star = "*"
+		t = t.Left
+	}
+	
+	if t.Sym == nil || isblank(n) {
+		return newfuncname(n.Sym)
+	}
+	
+	var p string
+	if star != "" {
+		p = fmt.Sprintf("(%s%v).%v", star, t.Sym, n.Sym) // (*Type).Method
+	} else {
+		p = fmt.Sprintf("%v.%v", t.Sym, n.Sym) // Type.Method
+	}
+	
+	if exportname(t.Sym.Name) {
+		n = newfuncname(Lookup(p))
+	} else {
+		n = newfuncname(Pkglookup(p, t.Sym.Pkg))
+	}
+	
+	return n
+}
+```
+
+上記の `p` の名前でシンボルテーブルに登録している
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## メソッド呼び出しは構造体関数呼び出しの糖衣構文
+
+```go
+type Person struct{
+	Name string
+}
+
+func (p Person) Greet(msg string) {
+	fmt.Printf("%s, I'm %s.", msg, p.Name)
+}
+
+func (p *Person) Yell(msg string) {
+	fmt.Printf("%s!!!", msg)
+}
+```
+
+```go
+func main() {
+	p := Person{Name: "Taro"}
+	// 以下は等価
+	p.Greet("Hi")         //=> Hi, I'm Taro.
+	Person.Greet(p, "Hi") //=> Hi, I'm Taro.
+
+	pp := &Person{Name: "Taro"}
+	// 以下は等価
+	pp.Yell("OH MY GOD")            //=> OH MY GOD!!!
+	(*Person).Yell(pp, "OH MY GOD") //=> OH MY GOD!!!
+}
+```
+
+http://play.golang.org/p/jLWna2Rm_x
+
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## このコード、こういうことです
+
+```go
+var buf bytes.Buffer
+// 以下は等価
+(*bytes.Buffer).WriteString(&buf, "hello")
+buf.WriteString("hello")
+```
+
+余談ですが...関数やメソッドも変数に入れられます
+
+```go
+f := (*bytes.Buffer).WriteString
+g := buf.WriteString
+
+f(&buf, "hello")
+g("hello")
+```
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## これからは以下を意識するとよい
+
+```go
+type Person struct{
+	Name string
+}
+
+func (p Person) Greet(msg string) {
+	fmt.Printf("%s, I'm %s.", msg, p.Name)
+}
+
+func (p *Person) Yell(msg string) {
+	fmt.Printf("%s!!!", msg)
+}
+```
+
+👇
+
+```go
+func Person.Greet(p Person, msg string) {
+	fmt.Printf("%s, I'm %s.", msg, p.Name)
+}
+
+func (*Person).Yell(p *Person, msg string) {
+	fmt.Printf("%s!!!", msg)
+}
+```
+
+※ ただしこのような関数定義はできない
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そして
+
+## メソッド呼び出しと構造体関数呼び出しが等価ということは...
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## 1. メソッド呼び出しごとに Receiver の値はコピーされる
+
+```go
+p := Person{Name: "Taro"}
+Person.Greet(p, "Hi") // p の値はコピーされてメソッド内で使われます
+p.Greet("Hi")         // p の値はコピーされてメソッド内で使われます
+```
+
+**大きな構造体に value receiver のメソッドを定義すると非効率！**
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## 2. Value Receiver の値はメソッド内で書き換えても影響ない
+
+```go
+type Person struct {
+	name string
+}
+
+func (p Person) UnchangeName(name string) {
+	p.name = name
+}
+
+p := Person{name: "Taro"}
+// p の値はコピーされるので、フィールドを書き換えても影響ない
+p.UnchangeName("Jiro")
+Person.UnchangeName(p, "Jiro")
+
+p.Greet("Hi") //=> Hi, I'm Taro.
+```
+
+**このことを利用すると不変オブジェクトがつくれる** 👉
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## 不変オブジェクトの例： `time.Time`
+
+```go
+package time
+
+type Time struct {
+	// contains filtered or unexported fields
+}
+
+func (t Time) Add(d Duration) Time
+func (t Time) AddDate(years int, months int, days int) Time
+func (t Time) After(u Time) bool
+func (t Time) AppendFormat(b []byte, layout string) []byte
+...
+func (t Time) Truncate(d Duration) Time
+func (t Time) UTC() Time
+func (t Time) Unix() int64
+func (t Time) UnixNano() int64
+```
+
+Receiver もメソッドの返り値も基本 `Time` 型で、 `*Time` 型ではない
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## 3. Receiver の値を変更するには Pointer Receiver にする必要あり
+
+```go
+type Person struct {
+	name string
+}
+
+func NewPerson(name string) *Person {
+	return &Person{name: name}
+}
+
+func (p *Person) ChangeName(name string) {
+	p.name = name
+}
+
+pp := NewPerson("Taro")
+pp.ChangeName("Jiro")            // pp の値を変更するのでポインタ変数で呼び出す
+
+pp.Greet("Hi") //=> Hi, I'm Jiro.
+```
+
+**内部状態を変更するメソッドは Pointer Receiver で定義する**
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## 4. Pointer Receiver のメソッド内では `nil` チェックをするべき
+
+```go
+type Person struct {
+	name string
+}
+
+func (p *Person) ChangeNameUnsafe(name string) {
+	// これだけだと危険
+	p.name = name
+}
+
+func (p *Person) ChangeName(name string) {
+	// 他の言語だと this == nil みたいなものだから変な感じがするが...
+	if p == nil {
+		return
+		// 極端な話 p = &Person{name: name} ということさえできる
+	}
+	p.name = name
+}
+
+var pp *Person
+pp.ChangeNameUnsafe("Jiro") //=> panic: runtime error: invalid memory address or nil pointer dereference
+(*Person).ChangeName(pp, "Jiro") // pp の値を変更するのでポインタ変数を渡す
+pp.ChangeName("Jiro")            // pp の値を変更するのでポインタ変数で呼び出す
+```
+
+**Pointer Receiver には `nil` が渡される可能性を常に考慮する**
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## Value Receiver と Pointer Receiver の使い分け
+
+- 基本は Pointer Receiver
+	- Receiver の値を変更したい
+	- 大きい構造体
+- 場合によっては Value Receiver
+	- `int`, `string` などのプリミティブ型や `slice`, `map` などの参照型
+	- 小さい構造体 (うまく使えばスタックで完結するので GC の回数が減る)
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+# Thank you!
+					</script>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'convex', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
