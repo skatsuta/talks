@@ -59,6 +59,14 @@
 
 				<section data-markdown>
 					<script type="text/template">
+## えー、まだローカルサーバ立てるのにわざわざ Apache や Nginx インストールしてるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
 # devd
 					</script>
 				</section>
@@ -89,6 +97,14 @@ $ devd -ol .
 
 				<section data-markdown>
 					<script type="text/template">
+## えー、まだプロジェクトごとに手打ちで `export FOO=bar` や `eval "$(docker-machine env dev)"` とかしてるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
 # direnv
 					</script>
 				</section>
@@ -119,13 +135,21 @@ export DOCKER_IP=$(docker-machine ip dev)
 eval "$(docker-machine env dev)"
 # 保存すると...
 direnv: loading .envrc
-direnv: export ~DOCKER_IP ~DOCKER_TLS_VERIFY ~DOCKER_CERT_PATH ~DOCKER_HOST ~DOCKER_MACHINE_NAME
+direnv: export +DOCKER_IP ~DOCKER_TLS_VERIFY ~DOCKER_CERT_PATH ~DOCKER_HOST ~DOCKER_MACHINE_NAME
 ```
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
+## えー、まだコマンドの結果で列挙されたファイルパスを開くのに手入力してるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
 # fpp
 
 Facebook Path Picker
@@ -138,11 +162,13 @@ Facebook Path Picker
 
 [github.com/facebook/PathPicker](https://github.com/facebook/PathPicker)
 
-標準出力に含まれるファイルパスを選択し、アクションできるツール
+標準出力に含まれるファイルパスをインタラクティブに選択して開けるツール
 
 ```sh
 # インストール
 $ brew install fpp
+# or
+$ git clone https://github.com/facebook/PathPicker && cd PathPicker && ln -s "$PWD/fpp" /usr/local/bin/fpp
 ```
 
 ### 使い方
@@ -160,6 +186,14 @@ $ find . -name "*.js" | fpp
 
 				<section data-markdown>
 					<script type="text/template">
+## えー、まだリポジトリを clone するときにいちいちディレクトリ移動してーとかやってるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
 # ghq
 					</script>
 				</section>
@@ -187,9 +221,9 @@ EOS
 ### 使い方
 
 ```sh
-# motemen/ghq を ~/src/github.com/motemen/ghq にクローンする
+# motemen/ghq を ~/src/github.com/motemen/ghq に clone する
 $ ghq get motemen/ghq
-# クローンしたディレクトリに移動する
+# clone したディレクトリに移動する
 $ ghq look motemen/ghq
         cd /Users/skatsuta/src/github.com/motemen/ghq
 ```
@@ -199,6 +233,14 @@ $ ghq look motemen/ghq
 
 				<section data-markdown>
 					<script type="text/template">
+## えー、まだ `curl` や `wget` の複雑なオプションと見にくい出力で HTTP アクセスしてるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
 # httpie
 					</script>
 				</section>
@@ -232,6 +274,14 @@ $ http https://api.github.com/users/octocat  Authorization:"token $GITHUB_API_TO
 
 				<section data-markdown>
 					<script type="text/template">
+## えー、まだ `mysql` コマンドで頑張ってるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
 # mycli
 					</script>
 				</section>
@@ -242,7 +292,7 @@ $ http https://api.github.com/users/octocat  Authorization:"token $GITHUB_API_TO
 
 [github.com/dbcli/mycli](https://github.com/dbcli/mycli)
 
-補完とシンタックスハイライト機能のある MySQL クライアント
+入力補完とシンタックスハイライト機能のある MySQL クライアント
 
 ```sh
 # インストール
@@ -264,6 +314,14 @@ $ mycli -uroot -p dbname
 
 				<section data-markdown>
 					<script type="text/template">
+## えー、まだあの遅い `grep` や `ack` 使ってるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
 # ag / pt
 					</script>
 				</section>
@@ -287,7 +345,7 @@ $ brew install ag/pt
 基本的に `grep` や `ack` と同じ
 
 ```sh
-$ ag/pt reveal
+$ ps aux | ag/pt apache
 ```
 
 					</script>
@@ -295,6 +353,58 @@ $ ag/pt reveal
 
 				<section data-markdown>
 					<script type="text/template">
+## えー、まだ標準出力に吐き出されちゃうだけのフィルタリングツール使ってるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
+# peco
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## peco
+
+[github.com/peco/peco](https://github.com/peco/peco)
+
+インタラクティブなフィルタリングツール
+
+```sh
+# インストール
+$ brew install peco
+# or
+$ go get gitub.com/peco/peco/cmd/peco
+```
+
+### 使い方
+
+```sh
+$ ps aux | peco
+$ ls -al | peco
+$ find . -name "*.js" | peco
+```
+
+### `ghq` と組み合わせるとさらに便利！
+
+[ghqでリポジトリ管理とpeco連携で快適git生活](http://qiita.com/strsk/items/9151cef7e68f0746820d)
+
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## えー、まだ zsh 素のまま使ってるの？
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+そんなあなたに
+
 # zaw
 					</script>
 				</section>
