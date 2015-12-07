@@ -116,13 +116,13 @@ type Person struct {
 }
 
 // *Person 型に対してメソッドを定義する
-func (p *Person) Yell(msg string) {
+func (p *Person) Shout(msg string) {
 	fmt.Printf("%s!!!", msg)
 }
 
 func main() {
 	p := &Person{Name: "Taro"} // ポインタ型の変数を用意する
-	p.Yell("OH MY GOD") //=> OH MY GOD!!!
+	p.Shout("OH MY GOD") //=> OH MY GOD!!!
 }
 ```
 					</script>
@@ -167,7 +167,7 @@ func main() {
 ```
 
 <small>
-	※ ` Greet()` の中で `p.Name` を使っていなくても panic になります
+	※ ` Greet()` の中で `p.Name` を使っていなくても panic になる
 </small>
 
 					</script>
@@ -185,7 +185,7 @@ type Person struct {
 }
 
 // *Person 型に対してメソッドを定義する
-func (p *Person) Yell(msg string) {
+func (p *Person) Shout(msg string) {
 	fmt.Printf("%s!!!", msg)
 }
 
@@ -210,26 +210,26 @@ type Person struct {
 }
 
 // *Person 型に対してメソッドを定義する
-func (p *Person) Yell(msg string) {
+func (p *Person) Shout(msg string) {
 	fmt.Printf("%s!!!", msg)
 }
 
 func main() {
-	var nilp *Person // nil ポインタを用意すると...
-	nilp.Yell("OH MY GOD")  //=> OH MY GOD!!! | ちゃんと呼び出せる
+	var nilp *Person        // nil ポインタを用意すると...
+	nilp.Shout("OH MY GOD") //=> OH MY GOD!!! | ちゃんと呼び出せる
 }
 ```
 
-ただしメソッド内で field 呼び出ししていたらアウト
+ただしメソッド内で field 呼び出ししていたら panic!
 
 ```go
-func (p *Person) YellAtMe(msg string) {
-	fmt.Printf("I'm %s, %s!!!", msg, p.Name) // p.Name フィールドを呼び出していると...
+func (p *Person) ShoutName(msg string) {
+	fmt.Printf("I'm %s, %s!!!", p.Name, msg) // p.Name フィールドを呼び出していると...
 }
 
 func main() {
-	var nilp *Person // nil ポインタを用意すると...
-	nilp.YellAtMe("so stupid")  //=> panic: runtime error: invalid memory address or nil pointer dereference
+	var nilp *Person          // nil ポインタを用意すると...
+	nilp.ShoutName("THE GOD") //=> panic: runtime error: invalid memory address or nil pointer dereference
 }
 ```
 
@@ -238,8 +238,8 @@ func main() {
 
 				<section data-markdown>
 					<script type="text/template">
-### 理屈はわかったけど、何かごちゃごちゃしてるような...?
-### 結局 Value Receiver と Pointer Receiver ってどう使い分ければいいの...?
+### 理屈はわかったけど、何かごちゃごちゃしてるような...？
+### 結局 Value Receiver と Pointer Receiver ってどう使い分ければいいの...？
 					</script>
 				</section>
 
@@ -247,7 +247,7 @@ func main() {
 					<script type="text/template">
 ## << シンプルな事実 >>
 
-# メソッド呼び出しとは「構造体関数」呼び出しの糖衣構文である！
+# メソッド呼び出しとは「メソッド式」呼び出しの糖衣構文である！
 					</script>
 				</section>
 
@@ -279,10 +279,10 @@ func Person.Greet(p Person, msg string) {
 	//...
 }
 ```
-という「構造体関数」として定義される！
+という**「メソッド式」(method expression)** として定義される！
 
 <small>
-	Pointer receiver なら `(*Person).Yell(p *Person, msg string)` になる
+	Pointer receiver なら `(*Person).Shout(p *Person, msg string)` になる
 </small>
 					</script>
 				</section>
@@ -330,7 +330,7 @@ func methodname1(n *Node, t *Node) *Node {
 
 				<section data-markdown>
 					<script type="text/template">
-## メソッド呼び出しは構造体関数呼び出しの糖衣構文
+## メソッド呼び出しはメソッド式呼び出しの糖衣構文
 
 ```go
 type Person struct{
@@ -341,7 +341,7 @@ func (p Person) Greet(msg string) {
 	fmt.Printf("%s, I'm %s.", msg, p.Name)
 }
 
-func (p *Person) Yell(msg string) {
+func (p *Person) Shout(msg string) {
 	fmt.Printf("%s!!!", msg)
 }
 ```
@@ -355,8 +355,8 @@ func main() {
 
 	pp := &Person{Name: "Taro"}
 	// 以下は等価
-	pp.Yell("OH MY GOD")            //=> OH MY GOD!!!
-	(*Person).Yell(pp, "OH MY GOD") //=> OH MY GOD!!!
+	pp.Shout("OH MY GOD")            //=> OH MY GOD!!!
+	(*Person).Shout(pp, "OH MY GOD") //=> OH MY GOD!!!
 }
 ```
 
@@ -390,7 +390,7 @@ g("hello")
 
 				<section data-markdown>
 					<script type="text/template">
-## これからは以下を意識するとよい
+## こういう意識を持とう
 
 ```go
 type Person struct{
@@ -401,24 +401,26 @@ func (p Person) Greet(msg string) {
 	fmt.Printf("%s, I'm %s.", msg, p.Name)
 }
 
-func (p *Person) Yell(msg string) {
+func (p *Person) Shout(msg string) {
 	fmt.Printf("%s!!!", msg)
 }
 ```
 
 👇
 
+Receiver は「第0引数」
+
 ```go
 func Person.Greet(p Person, msg string) {
 	fmt.Printf("%s, I'm %s.", msg, p.Name)
 }
 
-func (*Person).Yell(p *Person, msg string) {
+func (*Person).Shout(p *Person, msg string) {
 	fmt.Printf("%s!!!", msg)
 }
 ```
 
-※ ただしこのような関数定義はできない
+※ ただし直接このような関数定義はできない
 					</script>
 				</section>
 
@@ -426,7 +428,7 @@ func (*Person).Yell(p *Person, msg string) {
 					<script type="text/template">
 そして
 
-## メソッド呼び出しと構造体関数呼び出しが等価ということは...
+## メソッド呼び出しとメソッド式呼び出しが等価ということは...
 					</script>
 				</section>
 
