@@ -4,9 +4,9 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>Recommended Commandline Tools for Development</title>
+		<title>My Favorite Commandline Tools</title>
 
-		<meta name="description" content="Recommended Commandline Tools for Development">
+		<meta name="description" content="My Favorite Commandline Tools">
 		<meta name="author" content="Soshi Katsuta (@skatsuta)">
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
@@ -43,7 +43,7 @@
 			<div class="slides">
 
 				<section>
-					<h1>Recommended Commandline Tools for Development</h1>
+					<h1>My Favorite Commandline Tools</h1>
 					<p>
 						<a href="http://skatsuta.github.io">Soshi Katsuta</a><br>
 						<small><a href="http://github.com/skatsuta">@skatsuta</a></small>
@@ -53,21 +53,23 @@
 
 				<section data-markdown>
 					<script type="text/template">
-# 開発用おすすめコマンドラインツールの紹介
+# お気に入りのコマンドラインツールを紹介します
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだローカルサーバ立てるのにわざわざ Apache や Nginx インストールしてるの？
+## ローカルサーバを簡単に立ち上げたい！
+
+Apache も Nginx も設定が面倒。。。
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
-
 # devd
+
+😆
 					</script>
 				</section>
 
@@ -97,15 +99,17 @@ $ devd -ol .
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだプロジェクトごとに手打ちで `export FOO=bar` や `eval "$(docker-machine env dev)"` とかしてるの？
+## プロジェクトごとに環境変数を楽に管理したい！
+
+毎回 `export FOO=bar` とか打つの面倒すぎる。。。
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
-
 # direnv
+
+😄
 					</script>
 				</section>
 
@@ -142,17 +146,19 @@ direnv: export +DOCKER_IP +DOCKER_TLS_VERIFY +DOCKER_CERT_PATH +DOCKER_HOST +DOC
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだコマンドの結果で列挙されたファイルパスを開くのに手入力してるの？
+## コマンドで出力されたファイルパスを簡単に開きたい！
+
+わざわざ手入力するの面倒すぎる。。。
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
-
 # fpp
 
 Facebook Path Picker
+
+😊
 					</script>
 				</section>
 
@@ -186,15 +192,15 @@ $ find . -name "*.js" | fpp
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだリポジトリを clone するときにいちいちディレクトリ移動してーとかやってるの？
+## リポジトリを `git clone` するためにいちいち目的のディレクトリに移動するの面倒くさい！
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
-
 # ghq
+
+😘
 					</script>
 				</section>
 
@@ -233,15 +239,15 @@ $ ghq look motemen/ghq
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだ `curl` や `wget` の複雑なオプションと見にくい出力で HTTP アクセスしてるの？
+## `curl` や `wget` ってちょっと使いづらいし出力がすごく見づらい！
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
-
 # httpie
+
+😝
 					</script>
 				</section>
 
@@ -274,15 +280,15 @@ $ http https://api.github.com/users/octocat  Authorization:"token $GITHUB_API_TO
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだ `mysql` コマンドで頑張ってるの？
+## `mysql` コマンドで SQL 入力するの面倒くさい！
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
-
 # mycli
+
+🤗
 					</script>
 				</section>
 
@@ -314,15 +320,15 @@ $ mycli -uroot -p dbname
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだあの遅い `grep` や `ack` 使ってるの？
+## たくさんのファイルを `grep` すると遅い！
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
-
 # ag / pt
+
+😀
 					</script>
 				</section>
 
@@ -353,15 +359,15 @@ $ ps aux | ag/pt apache
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだ標準出力に吐き出されちゃうだけのフィルタリングツール使ってるの？
+## フィルタリングツールの結果が一気に吐き出されちゃうと読みづらい！
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
-
 # peco
+
+😳
 					</script>
 				</section>
 
@@ -397,15 +403,15 @@ $ find . -name "*.js" | peco
 
 				<section data-markdown>
 					<script type="text/template">
-## えー、まだ zsh 素のまま使ってるの？
+## もっともっとこの<ruby><rb>桃源郷</rb><rt>ターミナル</rt></ruby>を住みやすくしたい！
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-そんなあなたに
+# zsh + zaw
 
-# zaw
+😍
 					</script>
 				</section>
 
@@ -442,6 +448,8 @@ bindkey '^z' zaw-git-files
 				<section data-markdown>
 					<script type="text/template">
 # Thank you!
+
+😄
 
 みなさんのおすすめツールも教えてください！
 					</script>
