@@ -135,7 +135,7 @@ export DOCKER_IP=$(docker-machine ip dev)
 eval "$(docker-machine env dev)"
 # 保存すると...
 direnv: loading .envrc
-direnv: export +DOCKER_IP ~DOCKER_TLS_VERIFY ~DOCKER_CERT_PATH ~DOCKER_HOST ~DOCKER_MACHINE_NAME
+direnv: export +DOCKER_IP +DOCKER_TLS_VERIFY +DOCKER_CERT_PATH +DOCKER_HOST +DOCKER_MACHINE_NAME
 ```
 					</script>
 				</section>
