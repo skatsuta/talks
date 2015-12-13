@@ -49,6 +49,7 @@
 						<small><a href="http://github.com/skatsuta">@skatsuta</a></small>
 					</p>
 					<p><small>Dec 7, 2015</small></p>
+          <p><a href="http://skatsuta.github.io/talks/val-ptr-rcvr/#/">http://skatsuta.github.io/talks/val-ptr-rcvr</a></p>
 				</section>
 
 				<section data-markdown>
@@ -93,7 +94,7 @@ type Person struct {
 
 // Person 型に対してメソッドを定義する
 func (p Person) Greet(msg string) {
-	fmt.Printf("%s, I'm %s.", msg, p.Name)
+	fmt.Printf("%s, I'm %s.\n", msg, p.Name)
 }
 
 func main() {
@@ -117,12 +118,12 @@ type Person struct {
 
 // *Person 型に対してメソッドを定義する
 func (p *Person) Shout(msg string) {
-	fmt.Printf("%s!!!", msg)
+	fmt.Printf("%s!!!\n", msg)
 }
 
 func main() {
-	p := &Person{Name: "Taro"} // ポインタ型の変数を用意する
-	p.Shout("OH MY GOD") //=> OH MY GOD!!!
+	pp := &Person{Name: "Taro"} // ポインタ型の変数を用意する
+	pp.Shout("OH MY GOD") //=> OH MY GOD!!!
 }
 ```
 					</script>
@@ -130,7 +131,7 @@ func main() {
 
 				<section data-markdown>
 					<script type="text/template">
-## でも、あんまりその辺意識して書いてないけど...
+## でも、あんまりその辺意識して書いてないけど...？
 					</script>
 				</section>
 
@@ -147,13 +148,11 @@ func main() {
 ポインタ型変数に対してはコンパイラが値型のメソッド呼び出しに変換する
 
 ```go
-type Person struct {
-	Name string
-}
+type Person struct{ Name string }
 
 // Person 型に対してメソッドを定義する
 func (p Person) Greet(msg string) {
-	fmt.Printf("%s, I'm %s.", msg, p.Name)
+	fmt.Printf("%s, I'm %s.\n", msg, p.Name)
 }
 
 func main() {
@@ -169,6 +168,8 @@ func main() {
 <small>
 	※ ` Greet()` の中で `p.Name` を使っていなくても panic になる
 </small>
+
+http://play.golang.org/p/SZOv0hTicF
 
 					</script>
 				</section>
@@ -186,15 +187,18 @@ type Person struct {
 
 // *Person 型に対してメソッドを定義する
 func (p *Person) Shout(msg string) {
-	fmt.Printf("%s!!!", msg)
+	fmt.Printf("%s!!!\n", msg)
 }
 
 func main() {
 	p := Person{Name: "Taro"} // 値型の変数を用意する
-	(&p).Greet("OH MY GOD") //=> OH MY GOD!!! | 当然呼び出せる
-	p.Greet("OH MY GOD")    //=> OH MY GOD!!! | コンパイラが上のコードに変換する
+	(&p).Shout("OH MY GOD") //=> OH MY GOD!!! | 当然呼び出せる
+	p.Shout("OH MY GOD")    //=> OH MY GOD!!! | コンパイラが上のコードに変換する
 }
 ```
+
+http://play.golang.org/p/Vs-LOJq_1d
+
 					</script>
 				</section>
 
@@ -205,13 +209,9 @@ func main() {
 Pointer receiver のメソッドは `nil` でも呼び出しが可能
 
 ```go
-type Person struct {
-	Name string
-}
-
 // *Person 型に対してメソッドを定義する
 func (p *Person) Shout(msg string) {
-	fmt.Printf("%s!!!", msg)
+	fmt.Printf("%s!!!\n", msg)
 }
 
 func main() {
@@ -224,7 +224,7 @@ func main() {
 
 ```go
 func (p *Person) ShoutName(msg string) {
-	fmt.Printf("I'm %s, %s!!!", p.Name, msg) // p.Name フィールドを呼び出していると...
+	fmt.Printf("I'm %s, %s!!!\n", p.Name, msg) // p.Name フィールドを呼び出していると...
 }
 
 func main() {
@@ -232,6 +232,8 @@ func main() {
 	nilp.ShoutName("THE GOD") //=> panic: runtime error: invalid memory address or nil pointer dereference
 }
 ```
+
+http://play.golang.org/p/iKse4BrvWH
 
 					</script>
 				</section>
@@ -253,7 +255,7 @@ func main() {
 
 				<section data-markdown>
 					<script type="text/template">
-## このコード、意味わかりますか？
+### このコードの意味、わかりますか？
 
 ```go
 var buf bytes.Buffer
@@ -264,7 +266,7 @@ var buf bytes.Buffer
 
 				<section data-markdown>
 					<script type="text/template">
-# メソッド定義の真実
+## メソッド定義の真実
 
 ```go
 func (p Person) Greet(msg string) {
@@ -279,7 +281,7 @@ func Person.Greet(p Person, msg string) {
 	//...
 }
 ```
-という**「メソッド式」(method expression)** として定義される！
+という**「メソッド式 (method expression)」** として定義される！
 
 <small>
 	Pointer receiver なら `(*Person).Shout(p *Person, msg string)` になる
@@ -294,8 +296,8 @@ func Person.Greet(p Person, msg string) {
 [src/cmd/compile/internal/gc/dcl.go#L1291-L1316](https://github.com/golang/go/blob/master/src/cmd/compile/internal/gc/dcl.go#L1291-L1316)
 
 ```go
-// n: メソッドを表すノード
-// t: メソッドをもつ型を表すノード
+// n: メソッドを表す AST ノード
+// t: メソッドをもつ型を表す AST ノード
 func methodname1(n *Node, t *Node) *Node {
 	star := ""
 	if t.Op == OIND {
@@ -324,7 +326,7 @@ func methodname1(n *Node, t *Node) *Node {
 }
 ```
 
-上記の `p` の名前でシンボルテーブルに登録している
+上記の `p` の名前でシンボルテーブルに登録される
 					</script>
 				</section>
 
@@ -333,16 +335,14 @@ func methodname1(n *Node, t *Node) *Node {
 ## メソッド呼び出しはメソッド式呼び出しの糖衣構文
 
 ```go
-type Person struct{
-	Name string
-}
+type Person struct{ Name string }
 
 func (p Person) Greet(msg string) {
-	fmt.Printf("%s, I'm %s.", msg, p.Name)
+	fmt.Printf("%s, I'm %s.\n", msg, p.Name)
 }
 
 func (p *Person) Shout(msg string) {
-	fmt.Printf("%s!!!", msg)
+	fmt.Printf("%s!!!\n", msg)
 }
 ```
 
@@ -360,14 +360,14 @@ func main() {
 }
 ```
 
-http://play.golang.org/p/jLWna2Rm_x
+http://play.golang.org/p/3ENNQWghCX
 
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-## このコード、こういうことです
+### このコード、こういうことです
 
 ```go
 var buf bytes.Buffer
@@ -376,7 +376,7 @@ var buf bytes.Buffer
 buf.WriteString("hello")
 ```
 
-余談ですが...関数やメソッドも変数に入れられます
+ちなみに...メソッド式やメソッドも変数に代入可能
 
 ```go
 f := (*bytes.Buffer).WriteString
@@ -390,19 +390,17 @@ g("hello")
 
 				<section data-markdown>
 					<script type="text/template">
-## こういう意識を持とう
+## メソッド定義で意識すべきこと
 
 ```go
-type Person struct{
-	Name string
-}
+type Person struct{ Name string }
 
 func (p Person) Greet(msg string) {
-	fmt.Printf("%s, I'm %s.", msg, p.Name)
+	fmt.Printf("%s, I'm %s.\n", msg, p.Name)
 }
 
 func (p *Person) Shout(msg string) {
-	fmt.Printf("%s!!!", msg)
+	fmt.Printf("%s!!!\n", msg)
 }
 ```
 
@@ -412,11 +410,11 @@ Receiver は「第0引数」
 
 ```go
 func Person.Greet(p Person, msg string) {
-	fmt.Printf("%s, I'm %s.", msg, p.Name)
+	fmt.Printf("%s, I'm %s.\n", msg, p.Name)
 }
 
 func (*Person).Shout(p *Person, msg string) {
-	fmt.Printf("%s!!!", msg)
+	fmt.Printf("%s!!!\n", msg)
 }
 ```
 
@@ -451,21 +449,23 @@ p.Greet("Hi")         // p の値はコピーされてメソッド内で使わ�
 ## 2. Value Receiver の値はメソッド内で書き換えても影響ない
 
 ```go
-type Person struct {
-	name string
-}
+type Person struct{ name string }
 
 func (p Person) UnchangeName(name string) {
 	p.name = name
 }
 
-p := Person{name: "Taro"}
-// p の値はコピーされるので、フィールドを書き換えても影響ない
-p.UnchangeName("Jiro")
-Person.UnchangeName(p, "Jiro")
-
-p.Greet("Hi") //=> Hi, I'm Taro.
+func main() {
+	p := Person{name: "Taro"}
+	// p の値はコピーされるので、フィールドを書き換えても影響ない
+	Person.UnchangeName(p, "Jiro")
+	p.UnchangeName("Jiro")
+	
+	p.Greet("Hi") //=> Hi, I'm Taro.
+}
 ```
+
+http://play.golang.org/p/5kJVlx_XY7
 
 **このことを利用すると不変オブジェクトがつくれる** 👉
 					</script>
@@ -473,7 +473,9 @@ p.Greet("Hi") //=> Hi, I'm Taro.
 
 				<section data-markdown>
 					<script type="text/template">
-## 不変オブジェクトの例： `time.Time`
+### 不変オブジェクトの例： `time.Time`
+
+[github.com/golang/go/src/time/time.go](https://github.com/golang/go/blob/master/src/time/time.go)
 
 ```go
 package time
@@ -502,23 +504,26 @@ Receiver もメソッドの返り値も基本 `Time` 型で、 `*Time` 型では
 ## 3. Receiver の値を変更するには Pointer Receiver にする必要あり
 
 ```go
-type Person struct {
-	name string
-}
+type Person struct{ name string }
 
 func NewPerson(name string) *Person {
 	return &Person{name: name}
 }
 
+// p の値を変更したいので pointer receiver で定義する
 func (p *Person) ChangeName(name string) {
 	p.name = name
 }
 
-pp := NewPerson("Taro")
-pp.ChangeName("Jiro")            // pp の値を変更するのでポインタ変数で呼び出す
-
-pp.Greet("Hi") //=> Hi, I'm Jiro.
+func main() {
+	p := NewPerson("Taro")
+	p.ChangeName("Jiro")
+	
+	p.Greet("Hi") //=> Hi, I'm Jiro.
+}
 ```
+
+http://play.golang.org/p/asH9DZRmxG
 
 **内部状態を変更するメソッドは Pointer Receiver で定義する**
 					</script>
@@ -526,12 +531,10 @@ pp.Greet("Hi") //=> Hi, I'm Jiro.
 
 				<section data-markdown>
 					<script type="text/template">
-## 4. Pointer Receiver のメソッド内では `nil` チェックをするべき
+## 4. Pointer Receiver のメソッド内では `nil` チェックをすべき
 
 ```go
-type Person struct {
-	name string
-}
+type Person struct{ name string }
 
 func (p *Person) ChangeNameUnsafe(name string) {
 	// これだけだと危険
@@ -553,7 +556,25 @@ pp.ChangeNameUnsafe("Jiro") //=> panic: runtime error: invalid memory address or
 pp.ChangeName("Jiro")            // pp の値を変更するのでポインタ変数で呼び出す
 ```
 
-**Pointer Receiver には `nil` が渡される可能性を常に考慮する**
+**Pointer Receiver には `nil` が渡される可能性を常に考慮すべき**
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+## 5. Receiver の値を使わないときは記述しない
+
+```go
+type Person struct{ name string }
+
+// p の値を使わないときは書かない
+//    ↓
+func (*Person) Shout(msg string) {
+	fmt.Printf("%s!!!\n", msg)
+}
+```
+
+Receiver 変数を記述しなければ nil pointer dereference のリスクを減らせる
 					</script>
 				</section>
 
@@ -561,12 +582,14 @@ pp.ChangeName("Jiro")            // pp の値を変更するのでポインタ�
 					<script type="text/template">
 ## Value Receiver と Pointer Receiver の使い分け
 
-- 基本は Pointer Receiver
+- 基本は Pointer Receiver にする
 	- Receiver の値を変更したい
-	- 大きい構造体
-- 場合によっては Value Receiver
-	- `int`, `string` などのプリミティブ型や `slice`, `map` などの参照型
-	- 小さい構造体 (うまく使えばスタックで完結するので GC の回数が減る)
+	- 小さくない構造体
+- 変更せず以下の場合は Value Receiver でもあり
+	- `int`, `string` などのプリミティブ型
+	- `slice`, `map` などの参照型
+	- 小さい構造体 (うまくすればスタックで完結するので GC の回数が減る)
+	- 不変型にしたい (e.g. `time.Time`)
 					</script>
 				</section>
 
